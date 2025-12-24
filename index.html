@@ -1,250 +1,359 @@
 <!DOCTYPE html>
-<html lang="zh-cn">
+<html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <title>正太人生模拟器</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WenTianPlay 认证系统</title>
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
         body {
-            font-family: 'Comic Sans MS', cursive;
-            background: linear-gradient(135deg, #b3e5fc 0%, #f8bbd0 100%);
+            font-family: 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            padding: 20px;
-            color: #4a148c;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #333;
         }
-        .container {
-            max-width: 600px;
-            margin: 0 auto;
-            background: rgba(255,255,255,0.9);
-            padding: 30px;
+        
+        .auth-container {
+            background: white;
             border-radius: 20px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
-        }
-        h1 {
-            color: #ff6b6b;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 90%;
+            max-width: 500px;
+            padding: 40px;
             text-align: center;
-            text-shadow: 2px 2px 0px white;
+            animation: fadeIn 0.8s ease-out;
         }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .status-container {
+            margin: 30px 0;
+            padding: 20px;
+            border-radius: 10px;
+            background: #f8f9fa;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .loading {
+            display: none;
+        }
+        
+        .success, .error {
+            display: none;
+        }
+        
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #e0e0e0;
+            border-top: 5px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .status-icon {
+            font-size: 48px;
+            margin-bottom: 20px;
+        }
+        
+        .success .status-icon {
+            color: #10b981;
+        }
+        
+        .error .status-icon {
+            color: #ef4444;
+        }
+        
+        .status-message {
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 10px;
+        }
+        
+        .status-details {
+            color: #6b7280;
+            font-size: 14px;
+            margin-top: 10px;
+        }
+        
+        .countdown {
+            font-size: 14px;
+            color: #667eea;
+            font-weight: 500;
+            margin-top: 20px;
+        }
+        
+        .manual-redirect {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid #e5e7eb;
+        }
+        
         .btn {
-            background: #81d4fa;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
             border: none;
-            padding: 12px 24px;
-            border-radius: 30px;
-            margin: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            font-family: inherit;
+            padding: 12px 30px;
+            border-radius: 50px;
             font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.3s, box-shadow 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            margin: 10px 5px;
         }
+        
         .btn:hover {
-            transform: scale(1.1);
-            background: #4fc3f7;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
         }
-        .status {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 10px;
-            margin: 20px;
-            padding: 15px;
-            background: #e3f2fd;
-            border-radius: 15px;
+        
+        .btn-outline {
+            background: white;
+            color: #667eea;
+            border: 2px solid #667eea;
         }
-        .event-log {
-            height: 300px;
-            overflow-y: auto;
-            padding: 15px;
-            background: #fff;
-            border-radius: 15px;
-            margin: 20px 0;
-            border: 2px dashed #81d4fa;
+        
+        .btn-outline:hover {
+            background: #f8f9fa;
         }
-        .age-display {
-            font-size: 24px;
-            color: #ff6b6b;
-            text-align: center;
-            margin: 15px;
+        
+        .footer {
+            margin-top: 30px;
+            font-size: 12px;
+            color: #9ca3af;
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <h1>🐾 正太人生模拟器 🍭</h1>
-        <div id="gameStart">
-            <button class="btn" onclick="startGame()">开始新人生</button>
-        </div>
-        <div id="gameScreen" style="display:none;">
-            <div class="status">
-                <div>体力: <span id="stamina">10</span> 💪</div>
-                <div>智力: <span id="intel">10</span> 🧠</div>
-                <div>魅力: <span id="charm">10</span> ✨</div>
-                <div>元气: <span id="energy">10</span> 🌟</div>
+    <div class="auth-container">
+        <div class="logo">WenTianPlay 认证系统</div>
+        
+        <div class="status-container">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <div class="status-message">正在验证 API 对接...</div>
+                <div class="status-details">正在连接至 api.wentianplay.com</div>
             </div>
-            <div class="age-display">年龄: <span id="age">0</span>岁</div>
-            <div class="event-log" id="log"></div>
-            <button class="btn" onclick="nextYear()">下一年 ➔</button>
-            <button class="btn" onclick="restart()">重新开始 🔄</button>
+            
+            <div class="success" id="success">
+                <div class="status-icon">✓</div>
+                <div class="status-message">认证成功！</div>
+                <div class="status-details">API 对接验证通过，正在跳转</div>
+                <div class="countdown" id="successCountdown">5秒后自动跳转</div>
+            </div>
+            
+            <div class="error" id="error">
+                <div class="status-icon">✗</div>
+                <div class="status-message">认证失败</div>
+                <div class="status-details" id="errorDetails">API 对接验证未通过</div>
+                <div class="countdown" id="errorCountdown">5秒后自动跳转</div>
+            </div>
+        </div>
+        
+        <div class="manual-redirect" id="manualRedirect" style="display: none;">
+            <a href="https://api.wentianplay.com" class="btn" id="successBtn">立即访问 API</a>
+            <a href="https://www.WenTianPlay.cn" class="btn btn-outline" id="errorBtn">返回首页</a>
+        </div>
+        
+        <div class="footer">
+            © 2024 WenTianPlay 认证系统 | API 对接验证
         </div>
     </div>
 
     <script>
-        let state = {
-            age: 0,
-            stamina: 10,
-            intel: 10,
-            charm: 10,
-            energy: 10
-        };
-
-        const events = [
-            {
-                condition: s => Math.random() < 0.28, // 将坏结局几率设置为28%
-                text: [
-                    "被夺舍身体，失去自我",
-                    "变成皮物，无法反抗",
-                    "被不明生物占据身体",
-                    "被他人控制身体，失去自由",
-                    "被他人的身体所替代"
-                ],
-                effect: { charm: -5, intel: -5, stamina: -5, energy: -5 }
-            },
-            {
-                condition: () => true,
-                text: ["遇到了友善的新朋友", "获得了一本新书籍", "家庭聚会中非常开心"],
-                effect: { charm: 1, energy: 1 }
-            },
-            {
-                condition: s => s.age > 3,
-                text: ["在学校组建乐队并获得认可", "参加学校的戏剧表演"],
-                effect: { charm: 2, energy: -1 }
-            },
-            {
-                condition: s => s.energy > 8,
-                text: ["参加夏令营，结识新朋友", "组织了一次家庭出游"],
-                effect: { stamina: 1, charm: 1 }
-            },
-            {
-                condition: s => s.intel > 10,
-                text: ["发表了一篇小论文", "参加了科学实验，收获颇丰"],
-                effect: { intel: 2 }
-            },
-            {
-                condition: s => s.charm >= 15,
-                text: ["被选为学校风云人物", "在班级中备受欢迎"],
-                effect: { intel: 1, charm: 3 }
-            },
-            {
-                condition: s => s.age > 15,
-                text: ["成为学校社团的负责人", "拥有自己的小店铺"],
-                effect: { charm: 2, energy: -1 }
-            },
-            {
-                condition: () => true,
-                text: ["意外收获了一份小礼物", "遇见了久违的朋友"],
-                effect: { stamina: 1 }
-            },
-            {
-                condition: s => s.stamina > 12,
-                text: ["参加学校的运动会并取得好成绩", "在社区活动中表现出色"],
-                effect: { stamina: 3, energy: -1 }
-            },
-            {
-                condition: s => s.intel <= 5,
-                text: ["受到了老师的批评", "在课后辅导中遇到困难"],
-                effect: { intel: -2 }
-            },
-            {
-                condition: s => s.age > 10 && s.energy > 5,
-                text: ["和朋友一起参加了远足", "参与了暑期夏令营的活动"],
-                effect: { energy: 1, charm: 1 }
-            },
-            {
-                condition: s => s.charm < 5,
-                text: ["在社交中遇到挫折", "在班级活动中不被重视"],
-                effect: { charm: -2 }
-            },
-            {
-                condition: s => s.age > 12 && s.intel > 12,
-                text: ["获得了学术竞争的认可", "参与科学社区的项目"],
-                effect: { intel: 2, charm: 1 }
-            },
-            {
-                condition: s => s.age > 8 && s.energy < 4,
-                text: ["因为体力不足而被排除在活动外", "因缺乏锻炼而感到疲惫"],
-                effect: { stamina: -2, energy: -1 }
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingEl = document.getElementById('loading');
+            const successEl = document.getElementById('success');
+            const errorEl = document.getElementById('error');
+            const manualRedirectEl = document.getElementById('manualRedirect');
+            const errorDetailsEl = document.getElementById('errorDetails');
+            const successCountdownEl = document.getElementById('successCountdown');
+            const errorCountdownEl = document.getElementById('errorCountdown');
+            const successBtn = document.getElementById('successBtn');
+            const errorBtn = document.getElementById('errorBtn');
+            
+            let countdown = 5;
+            let countdownInterval;
+            
+            // 显示加载状态
+            loadingEl.style.display = 'flex';
+            
+            // API 验证函数
+            async function verifyApi() {
+                try {
+                    // 添加时间戳防止缓存
+                    const apiUrl = 'https://api.wentianplay.com/api/api.json?' + new Date().getTime();
+                    
+                    // 使用 fetch API 获取数据
+                    const response = await fetch(apiUrl, {
+                        method: 'GET',
+                        headers: {
+                            'Accept': 'application/json',
+                            'Cache-Control': 'no-cache'
+                        },
+                        mode: 'cors', // 尝试跨域请求
+                        credentials: 'omit'
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP 错误: ${response.status}`);
+                    }
+                    
+                    const data = await response.json();
+                    
+                    // 将响应转换为字符串，检查是否包含目标域名
+                    const jsonString = JSON.stringify(data);
+                    
+                    if (jsonString.includes('api.wentianplay.net')) {
+                        return true;
+                    } else {
+                        errorDetailsEl.textContent = 'API 响应中未找到 api.wentianplay.net';
+                        return false;
+                    }
+                    
+                } catch (error) {
+                    console.error('API 验证错误:', error);
+                    
+                    // 尝试使用 JSONP 方式（如果 API 支持）
+                    try {
+                        const result = await jsonpRequest('https://api.wentianplay.com/api/api.json');
+                        if (result && JSON.stringify(result).includes('api.wentianplay.net')) {
+                            return true;
+                        }
+                        errorDetailsEl.textContent = 'API 响应中未找到 api.wentianplay.net';
+                        return false;
+                    } catch (jsonpError) {
+                        console.error('JSONP 也失败:', jsonpError);
+                        errorDetailsEl.textContent = `无法连接到 API: ${error.message}`;
+                        return false;
+                    }
+                }
             }
-            // 可以继续添加更多的事件
-        ];
-
-        function startGame() {
-            document.getElementById("gameStart").style.display = "none";
-            document.getElementById("gameScreen").style.display = "block";
-            addLog("✨ 萌萌正太诞生！");
-        }
-
-        function nextYear() {
-            state.age++;
-            if (state.age >= 12) return endGame();
-
-            updateStatus();
-            triggerEvent();
-            document.getElementById("age").textContent = state.age;
-        }
-
-        function updateStatus() {
-            Object.entries(state).forEach(([key, value]) => {
-                document.getElementById(key).textContent = value;
+            
+            // JSONP 请求函数（备选方案）
+            function jsonpRequest(url) {
+                return new Promise((resolve, reject) => {
+                    const callbackName = 'jsonp_callback_' + Math.round(100000 * Math.random());
+                    const script = document.createElement('script');
+                    
+                    window[callbackName] = function(data) {
+                        delete window[callbackName];
+                        document.body.removeChild(script);
+                        resolve(data);
+                    };
+                    
+                    script.src = url + (url.indexOf('?') >= 0 ? '&' : '?') + 'callback=' + callbackName;
+                    script.onerror = function() {
+                        delete window[callbackName];
+                        document.body.removeChild(script);
+                        reject(new Error('JSONP 请求失败'));
+                    };
+                    
+                    document.body.appendChild(script);
+                    
+                    // 设置超时
+                    setTimeout(() => {
+                        if (window[callbackName]) {
+                            delete window[callbackName];
+                            document.body.removeChild(script);
+                            reject(new Error('JSONP 请求超时'));
+                        }
+                    }, 10000);
+                });
+            }
+            
+            // 开始倒计时
+            function startCountdown(isSuccess) {
+                const countdownEl = isSuccess ? successCountdownEl : errorCountdownEl;
+                
+                countdownInterval = setInterval(() => {
+                    countdown--;
+                    countdownEl.textContent = `${countdown}秒后自动跳转`;
+                    
+                    if (countdown <= 0) {
+                        clearInterval(countdownInterval);
+                        if (isSuccess) {
+                            window.location.href = 'https://api.wentianplay.com';
+                        } else {
+                            window.location.href = 'https://www.WenTianPlay.cn';
+                        }
+                    }
+                }, 1000);
+            }
+            
+            // 显示结果
+            function showResult(isSuccess) {
+                loadingEl.style.display = 'none';
+                
+                if (isSuccess) {
+                    successEl.style.display = 'block';
+                    startCountdown(true);
+                } else {
+                    errorEl.style.display = 'block';
+                    startCountdown(false);
+                }
+                
+                // 3秒后显示手动跳转按钮
+                setTimeout(() => {
+                    manualRedirectEl.style.display = 'block';
+                }, 3000);
+            }
+            
+            // 开始验证
+            verifyApi().then(isValid => {
+                showResult(isValid);
+            }).catch(error => {
+                console.error('验证过程出错:', error);
+                errorDetailsEl.textContent = '验证过程发生错误: ' + error.message;
+                showResult(false);
             });
-        }
-
-        function triggerEvent() {
-            const validEvents = events.filter(e => e.condition(state));
-            if (validEvents.length > 0) {
-                const randomEvent = validEvents[Math.floor(Math.random() * validEvents.length)];
-                const eventText = randomEvent.text[Math.floor(Math.random() * randomEvent.text.length)];
-
-                addLog(`🎈 ${state.age}岁: ${eventText}`);
-                applyEffect(randomEvent.effect);
-            } else {
-                addLog(`🎈 ${state.age}岁: 没有发生事件。`);
-            }
-        }
-
-        function applyEffect(effect) {
-            Object.entries(effect).forEach(([key, value]) => {
-                state[key] = Math.max(0, state[key] + value);
-                document.getElementById(key).textContent = state[key];
+            
+            // 手动跳转按钮事件
+            successBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                clearInterval(countdownInterval);
+                window.location.href = 'https://api.wentianplay.com';
             });
-        }
-
-        function addLog(text) {
-            const log = document.getElementById("log");
-            log.innerHTML += `<div>${text}</div>`;
-            log.scrollTop = log.scrollHeight;
-        }
-
-        function endGame() {
-            let ending = "普通地长大了";
-            if (state.charm > 20) ending = "成为国民级偶像正太！";
-            if (state.intel > 20) ending = "成为天才少年科学家！";
-            if (state.stamina > 20) ending = "成长为运动系超级新星！";
-            if (state.charm < 5) ending = "没有人记得你的名字...";
-            if (state.intel < 5) ending = "逐渐沉默在平庸中...";
-            if (state.stamina < 5) ending = "也许该开始运动了...";
-            if (state.charm < 0 || state.intel < 0 || state.stamina < 0 || state.energy < 0) {
-                ending = "被夺舍身体，失去了自我";
-            }
-
-            addLog(`🎉 结局：${ending}`);
-            setTimeout(restart, 2000);
-        }
-
-        function restart() {
-            state = { age: 0, stamina: 10, intel: 10, charm: 10, energy: 10 };
-            document.getElementById("log").innerHTML = "";
-            updateStatus();
-            document.getElementById("age").textContent = 0;
-            startGame();
-        }
+            
+            errorBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                clearInterval(countdownInterval);
+                window.location.href = 'https://www.WenTianPlay.cn';
+            });
+        });
     </script>
 </body>
 </html>
